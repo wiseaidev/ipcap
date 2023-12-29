@@ -1,0 +1,10 @@
+[package]
+name = "ipcap"
+version = "0.0.0"
+description = "WIP: 🌍 A CLI & library for decoding IP addresses into state, postal code, country, coordinates, etc."
+license = "MIT"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
