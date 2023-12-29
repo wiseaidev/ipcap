@@ -1,6 +1,6 @@
 [package]
 name = "ipcap"
-version = "0.0.0-stable.0"
+version = "0.0.1"
 description = "WIP: 🌍 A CLI & library for decoding IP addresses into state, postal code, country, coordinates, etc."
 license = "MIT"
 edition = "2021"
