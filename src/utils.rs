@@ -8,6 +8,10 @@ use std::collections::HashMap;
 ///
 /// * `value` - The value to be stored in the hashmap.
 ///
+/// # Returns
+///
+/// (`HashMap<&'static str, &'static str>`): A map with a single entry.
+///
 /// # Examples
 ///
 /// ```
@@ -31,6 +35,10 @@ pub fn single_level(value: &'static str) -> HashMap<&'static str, &'static str> 
 /// # Arguments
 ///
 /// * `entries` - A vector of key-value pairs to be stored in the hashmap.
+///
+/// # Returns
+///
+/// (`HashMap<&'static str, &'static str>`): A map containing the provided key-value pairs.
 ///
 /// # Examples
 ///

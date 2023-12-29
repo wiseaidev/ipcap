@@ -783,7 +783,7 @@ pub static COUNTRY_DICT: Lazy<HashMap<&'static str, HashMap<&'static str, &'stat
         .collect()
     });
 
-/// Given a country code, returns the associated time zone.
+/// Given a country code, returns the associated time zone (its country and region).
 ///
 /// If the value for the given key is a HashMap and the second key is provided,
 /// it retrieves the inner map value of the second key.
@@ -793,6 +793,10 @@ pub static COUNTRY_DICT: Lazy<HashMap<&'static str, HashMap<&'static str, &'stat
 /// * `country_code` - A two-letter country code.
 /// * `key1` - The first key to retrieve the value from the outer map.
 /// * `key2` - The second key to retrieve the inner map value if provided.
+///
+/// # Returns
+///
+/// (`Option<&'static str>`): The time zone, or None if the country code or keys are not found.
 ///
 /// # Examples
 ///
