@@ -1,7 +1,7 @@
 /// Static array containing country codes.
 ///
 /// The `COUNTRY_CODES_TWO` array holds 255 country codes. Each code is represented as a
-/// string slice ('&'static str). The array is designed to map to specific locations
+/// string slice (&str). The array is designed to map to specific locations
 /// or regions globally, providing a standardized way of identifying countries.
 ///
 /// # Usage

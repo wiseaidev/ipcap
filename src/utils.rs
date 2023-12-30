@@ -63,9 +63,9 @@ pub fn multi_level(
     entries.into_iter().collect()
 }
 
-/// Converts an IP address in string format to a 64-bit unsigned integer representation.
+/// Converts an IP address in string format to a 128-bit unsigned integer representation.
 ///
-/// This function takes a string representing an IP address and converts it into a 64-bit
+/// This function takes a string representing an IP address and converts it into a 128-bit
 /// unsigned integer. It supports both IPv4 and IPv6 addresses. The result is the numeric
 /// representation of the IP address.
 ///

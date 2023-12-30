@@ -1,7 +1,7 @@
 /// Static array containing country names.
 ///
 /// The `COUNTRY_NAMES` array holds 255 country names. Each name is represented as a
-/// string slice ('&'static str). The array is designed to provide human-readable
+/// string slice (&str). The array is designed to provide human-readable
 /// labels for corresponding country codes, offering a mapping between code and name.
 ///
 /// # Usage
