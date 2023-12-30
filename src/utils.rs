@@ -159,6 +159,75 @@ pub fn read_data(buffer: &[u8], pos: usize) -> (usize, Option<String>) {
     (cur, data)
 }
 
+/// Pretty prints a HashMap by sorting keys alphabetically and formatting the output.
+///
+/// # Arguments
+///
+/// * `data` - A reference to a HashMap with keys as string references and values as optional strings.
+///
+/// # Example
+///
+/// ```rust
+/// use std::collections::HashMap;
+/// use ipcap::utils::pretty_print_dict;
+///
+/// let mut data = HashMap::new();
+/// data.insert("time_zone", Some("America/Los_Angeles".to_string()));
+/// data.insert("dma_code", Some("807".to_string()));
+/// data.insert("continent", Some("NA".to_string()));
+/// data.insert("longitude", Some("-122.0881".to_string()));
+/// data.insert("area_code", Some("650".to_string()));
+/// data.insert("country_code", Some("US".to_string()));
+/// data.insert("postal_code", Some("94040".to_string()));
+/// data.insert("country_code3", Some("USA".to_string()));
+/// data.insert("country_name", Some("United States".to_string()));
+/// data.insert("metro_code", Some("San Francisco, CA".to_string()));
+/// data.insert("region_code", Some("CA".to_string()));
+/// data.insert("city", Some("Mountain View".to_string()));
+/// data.insert("latitude", Some("37.3845".to_string()));
+///
+/// pretty_print_dict(&data);
+/// ```
+///
+/// Output:
+///
+/// ```sh
+/// {
+///     "area_code": "650",
+///     "city": "Mountain View",
+///     "continent": "NA",
+///     "country_code": "US",
+///     "country_code3": "USA",
+///     "country_name": "United States",
+///     "dma_code": "807",
+///     "latitude": "37.3845",
+///     "longitude": "-122.0881",
+///     "metro_code": "San Francisco, CA",
+///     "postal_code": "94040",
+///     "region_code": "CA",
+///     "time_zone": "America/Los_Angeles",
+/// }
+/// ```
+pub fn pretty_print_dict(data: &HashMap<&str, Option<String>>) {
+    let mut sorted_keys: Vec<_> = data.keys().cloned().collect();
+    sorted_keys.sort();
+
+    println!("{{");
+
+    for key in sorted_keys {
+        print!("    \"\u{1b}[1;32m{}\": ", key); // Green color for keys
+        if let Some(value) = data.get(key) {
+            match value {
+                Some(v) => print!("\u{1b}[1;37m\"{}\"\u{1b}[0m,", v), // Silver color for values
+                None => print!("\u{1b}[1;30mnull\u{1b}[0m,"),         // Gray color for null values
+            }
+        }
+        println!();
+    }
+
+    println!("}}");
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -166,7 +235,6 @@ mod tests {
 
     #[test]
     fn test_single_level() {
-        // Test with a single-level entry
         let map: HashMap<&'static str, &'static str> = single_level("example_value");
         assert_eq!(map.get("default"), Some(&"example_value"));
         assert_eq!(map.len(), 1);
@@ -174,7 +242,6 @@ mod tests {
 
     #[test]
     fn test_multi_level() {
-        // Test with multiple key-value pairs
         let entries = vec![("key1", "value1"), ("key2", "value2")];
         let map: HashMap<&'static str, &'static str> = multi_level(entries);
         assert_eq!(map.get("key1"), Some(&"value1"));
@@ -184,7 +251,6 @@ mod tests {
 
     #[test]
     fn test_ip_to_number_ipv4() {
-        // Test with a valid IPv4 address
         let ipv4_address = "192.168.1.1";
         let result = ip_to_number(ipv4_address);
         assert_eq!(result, 3232235777);

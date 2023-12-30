@@ -7,7 +7,9 @@ use crate::designated_market_area::DMAS;
 use crate::errors::GeoIpReaderError;
 use crate::time_zones::time_zone_by_country;
 use crate::utils::{ip_to_number, read_data};
+use dirs::home_dir;
 use std::collections::HashMap;
+use std::env;
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
 
@@ -63,7 +65,20 @@ where
     /// }
     /// ```
     pub fn new() -> Result<GeoIpReader<File>, GeoIpReaderError> {
-        let fp = File::open("data/geo_ip_city.dat").map_err(|_| GeoIpReaderError::OpenFileError)?;
+        const ENV_VAR_NAME: &str = "IPCAP_FILE_PATH";
+
+        let file_path = match env::var(ENV_VAR_NAME) {
+            Ok(val) => val,
+            Err(_) => {
+                // Default path in a subdirectory of the user's home directory
+                let mut default_path = home_dir().unwrap_or_default();
+                default_path.push("ipcap");
+                default_path.push("geo_ip_city.dat");
+                default_path.to_string_lossy().into_owned()
+            }
+        };
+
+        let fp = File::open(file_path).map_err(|_| GeoIpReaderError::OpenFileError)?;
 
         let mut geoip_reader = GeoIpReader {
             fp,
@@ -439,7 +454,6 @@ where
         );
 
         // Return the populated record HashMap
-        println!("{:?}", record);
         record
     }
 
@@ -482,19 +496,14 @@ mod tests {
 
     #[test]
     fn test_get_time_zone_given_ip_addr() {
-        // Create a test instance of GeoIpReader
         let mut geo_ip = GeoIpReader::<File>::new().unwrap();
 
-        // Call the get_record method with a test IP number
         let mut result = geo_ip.get_time_zone_given_ip_addr("185.90.90.120");
 
-        // Add assertions based on the expected result
         assert_eq!(result, Some("Asia/Riyadh".to_string()));
 
-        // Call the get_record method with a test IP number
         result = geo_ip.get_time_zone_given_ip_addr("108.95.4.105");
 
-        // Add assertions based on the expected result
         assert_eq!(result, Some("America/Los_Angeles".to_string()));
     }
 
@@ -503,7 +512,6 @@ mod tests {
         let mut geo_ip = GeoIpReader::<File>::new().unwrap();
         let record = geo_ip.get_record("185.90.90.120");
 
-        // Add assertions based on expected values for the test IP
         assert_eq!(record["country_code"].as_deref(), Some("SA"));
     }
 
