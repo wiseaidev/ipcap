@@ -1,20 +1,20 @@
-/// Static array containing continent names based on their index.
+/// Static array containing continent names based on countries' indices.
 ///
-/// The index corresponds to the ASCII value of the continent code.
-/// For example, "AS" corresponds to the ASCII value 65, so CONTINENT_NAMES[65] is "AS".
+/// The index corresponds to the index of a given country.
+/// For example, `CONTINENT_NAMES[124]` represents the continent code for Lebanon, which is "AS" for Asia.
 ///
 /// # Usage
 ///
 /// ```
 /// use ipcap::continent_names::CONTINENT_NAMES;
 ///
-/// // Accessing country name for the first country
-/// // let first_country_name = CONTINENT_NAMES[1];
-/// // assert_eq!(first_country_name, "Asia/Pacific Region");
+/// // Accessing continent name for the first country
+/// // let first_continent_code = CONTINENT_NAMES[1];
+/// // assert_eq!(first_continent_code, "AS");
 ///
-/// // Accessing country name for Lebanon
-/// // let usa_country_name = CONTINENT_NAMES[124];
-/// // assert_eq!(usa_country_name, "Lebanon");
+/// // Accessing continent name for Lebanon
+/// // let lebanon_continent_name = CONTINENT_NAMES[124];
+/// // assert_eq!(lebanon_continent_name, "AS");
 /// ```
 pub static CONTINENT_NAMES: [&str; 255] = [
     "--", "AS", "EU", "EU", "AS", "AS", "NA", "NA", "EU", "AS", "NA", "AF", "AN", "SA", "OC", "EU",
