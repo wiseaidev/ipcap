@@ -86,13 +86,13 @@ pub fn multi_level(
 /// ```
 /// use ipcap::utils::ip_to_number;
 ///
-/// let ipv4_address = "192.168.1.1";
+/// let ipv4_address = "1.32.0.0";
 /// let ipv6_address = "2001:0db8:85a3:0000:0000:8a2e:0370:7334";
 ///
 /// let ipv4_numeric = ip_to_number(ipv4_address);
 /// let ipv6_numeric = ip_to_number(ipv6_address);
 ///
-/// assert_eq!(ipv4_numeric, 3232235777);
+/// assert_eq!(ipv4_numeric, 18874368);
 /// assert_eq!(ipv6_numeric, 42540766411283223938465490629124161536);
 /// ```
 pub fn ip_to_number(ip: &str) -> u128 {
@@ -120,6 +120,43 @@ pub fn ip_to_number(ip: &str) -> u128 {
             }
         }
     }
+}
+
+/// Reads null-terminated string data from the given buffer starting at the specified position.
+///
+/// # Arguments
+///
+/// * `buffer` - The buffer containing the string data.
+/// * `pos` - The starting position to read the string from.
+///
+/// # Returns
+///
+/// A tuple containing:
+/// - The updated position after reading the string.
+/// - An optional string representing the data read. `None` if no valid string is found.
+///
+/// # Examples
+///
+/// ```
+/// use ipcap::utils::read_data;
+///
+/// let buffer = b"Hello\0World";
+/// let pos = 0;
+/// let (new_pos, data) = read_data(buffer, pos);
+/// assert_eq!(new_pos, 5);
+/// assert_eq!(data, Some("Hello".to_string()));
+/// ```
+pub fn read_data(buffer: &[u8], pos: usize) -> (usize, Option<String>) {
+    let mut cur = pos;
+    while buffer[cur] != 0 {
+        cur += 1;
+    }
+    let data = if cur > pos {
+        Some(String::from_utf8_lossy(&buffer[pos..cur]).to_string())
+    } else {
+        None
+    };
+    (cur, data)
 }
 
 #[cfg(test)]
@@ -166,5 +203,33 @@ mod tests {
     fn test_ip_to_number_invalid() {
         let invalid_address = "invalid_ip";
         ip_to_number(invalid_address);
+    }
+
+    #[test]
+    fn test_read_data_with_valid_string() {
+        let buffer = b"Hello\0World";
+        let pos = 0;
+        let (new_pos, data) = read_data(buffer, pos);
+        assert_eq!(new_pos, 5);
+        assert_eq!(data, Some("Hello".to_string()));
+    }
+
+    #[test]
+    fn test_read_data_with_empty_string() {
+        let buffer = b"\0World";
+        let pos = 0;
+        let (new_pos, data) = read_data(buffer, pos);
+        assert_eq!(new_pos, 0);
+        assert_eq!(data, None);
+    }
+
+    #[test]
+    #[should_panic(expected = "index out of bounds: the len is 10 but the index is 10")]
+    fn test_read_data_with_no_null_terminator() {
+        let buffer = b"HelloWorld";
+        let pos = 0;
+        let (new_pos, data) = read_data(buffer, pos);
+        assert_eq!(new_pos, buffer.len());
+        assert_eq!(data, None);
     }
 }

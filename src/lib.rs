@@ -1,4 +1,5 @@
 pub mod constants;
+pub mod continent_names;
 pub mod countries_codes_three;
 pub mod countries_codes_two;
 pub mod countries_names;

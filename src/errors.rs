@@ -1,6 +1,5 @@
 use std::fmt;
 
-
 /// Enum representing various errors that may occur while using `GeoIpReader`.
 #[derive(Debug)]
 pub enum GeoIpReaderError {
@@ -10,6 +9,7 @@ pub enum GeoIpReaderError {
     InvalidDatabaseType,
     /// Error indicating a failure to open a file.
     OpenFileError,
+    CorruptDatabase,
 }
 
 impl fmt::Display for GeoIpReaderError {
@@ -19,6 +19,7 @@ impl fmt::Display for GeoIpReaderError {
             GeoIpReaderError::GetHostByNameError => write!(f, "Error getting host by name"),
             GeoIpReaderError::InvalidDatabaseType => write!(f, "Invalid database type"),
             GeoIpReaderError::OpenFileError => write!(f, "Cannot open file"),
+            GeoIpReaderError::CorruptDatabase => write!(f, "Corrupt database"),
         }
     }
 }
