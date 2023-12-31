@@ -72,7 +72,7 @@ where
             Err(_) => {
                 // Default path in a subdirectory of the user's home directory
                 let mut default_path = home_dir().unwrap_or_default();
-                default_path.push("ipcap");
+                default_path.push("..");
                 default_path.push("geo_ip_city.dat");
                 default_path.to_string_lossy().into_owned()
             }

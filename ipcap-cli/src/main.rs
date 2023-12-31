@@ -1,8 +1,10 @@
 use clap::Parser;
-use ipcap::cli::Cli;
+use crate::cli::Cli;
 use ipcap::geo_ip_reader::GeoIpReader;
 use ipcap::utils::pretty_print_dict;
 use std::fs::File;
+
+mod cli;
 
 /// The main entry point of `ipcap`.
 ///
