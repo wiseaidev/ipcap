@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ```sh
-ipcap 0.1.0
+ipcap 0.1.1
 
  ▄█     ▄███████▄  ▄████████    ▄████████    ▄███████▄ 
 ███    ███    ███ ███    ███   ███    ███   ███    ███ 
@@ -37,7 +37,7 @@ about IP addresses, including details such as city, region, country, location, e
 To install `ipcap`, use the following Cargo command:
 
 ```bash
-cargo install --locked ipcap
+cargo install --locked ipcap --all-features
 ```
 
 ## 📖 Download the dataset
@@ -64,14 +64,31 @@ Replace `/your/custom/path/geo_ip_city.dat` with the desired file path. If the e
 - Zero API calls for decoding IP addresses.
 - Dataset download and customizable file path.
 
-## 🚗 Usage
-
-Learn how to use `ipcap` and explore its features with the following examples:
+## 🚗 Usage as CLI
 
 ### Perform IP lookup:
 
 ```sh
 ipcap -t 8.8.8.8
+```
+
+### Usage as dep
+
+```toml
+[dependencies]
+ipcap = "0.1.1"
+```
+
+```rust
+use ipcap::geo_ip_reader::GeoIpReader;
+use std::fs::File;
+
+fn fn main() {
+    let mut geo_ip = GeoIpReader::<File>::new().unwrap();
+    let record = geo_ip.get_record("8.8.8.8");
+
+    println!("{:?}", record);
+}
 ```
 
 ## 🎨 Options

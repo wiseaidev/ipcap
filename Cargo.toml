@@ -1,23 +1,28 @@
 [package]
 name = "ipcap"
-version = "1.1.0"
+version = "0.1.1"
 description = "🌍 A CLI & library for decoding IP addresses into state, postal code, country, coordinates, etc without internet access."
 license = "MIT"
 keywords = ["ip", "geolocation", "geoip", "ipcap"]
 repository = "https://github.com/wiseaidev/ipcap"
 documentation = "https://docs.rs/ipcap"
 authors = ["Mahmoud Harmouch <oss@wiseai.dev>"]
+exclude = ["/data"]
 
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+clap = { version = "4.4.12", features = ["derive"] , optional = true }
 dirs = "5.0.1"
 once_cell = "1.19.0"
 
+[features]
+cli = ["clap"]
+
 [profile.release]
-codegen-units = 0
+codegen-units = 1
 opt-level = "z"
 lto = "thin"
 strip = "symbols"
