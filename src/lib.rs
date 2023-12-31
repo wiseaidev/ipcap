@@ -64,6 +64,7 @@
 //! please engage with the project on [GitHub](https://github.com/wiseaidev/ipcap).
 //! Your contributions help improve this crate for the community.
 
+#[cfg(feature = "cli")]
 pub mod cli;
 pub mod constants;
 pub mod continent_names;
