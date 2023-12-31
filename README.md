@@ -27,7 +27,7 @@ about IP addresses, including details such as city, region, country, location, e
 
 - [Installation](#-installation)
 - [Features](#-features)
-- [Usage](#-usage)
+- [Usage](#-usage-as-cli)
 - [Options](#-options)
 - [Contributing](#-contributing)
 - [License](#-license)
@@ -58,13 +58,16 @@ export IPCAP_FILE_PATH=/your/custom/path/geo_ip_city.dat
 
 Replace `/your/custom/path/geo_ip_city.dat` with the desired file path. If the environment variable is not set, the program will use the default path (`/home/username/ipcap/geo_ip_city.dat`).
 
+> [!NOTE]
+The dataset was shamelessly taken from the fedora website at [https://src.fedoraproject.org/repo/pkgs/GeoIP-GeoLite-data/GeoLiteCity.dat.gz](https://src.fedoraproject.org/repo/pkgs/GeoIP-GeoLite-data/GeoLiteCity.dat.gz/01968fd152251b98874ee0a8d254f4ab/).
+
 ## ✨ Features
 
 - IP address lookup without internet access.
 - Zero API calls for decoding IP addresses.
 - Dataset download and customizable file path.
 
-## 🚗 Usage as CLI
+## ⌨ Usage as CLI
 
 ### Perform IP lookup:
 
@@ -72,7 +75,7 @@ Replace `/your/custom/path/geo_ip_city.dat` with the desired file path. If the e
 ipcap -t 8.8.8.8
 ```
 
-### Usage as dep
+## 💻 Usage as Dep
 
 ```toml
 [dependencies]
