@@ -11,7 +11,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! ipcap = "0.1.0"
+//! ipcap = "0.1.2"
 //! ```
 //!
 //! 2. Use the `IpCap` struct to perform IP lookup without internet access:
