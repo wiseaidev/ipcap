@@ -1,6 +1,9 @@
+#[cfg(feature = "cli")]
 use clap::builder::styling::{AnsiColor, Effects, Styles};
+#[cfg(feature = "cli")]
 use clap::Parser;
 
+#[cfg(feature = "cli")]
 fn styles() -> Styles {
     Styles::styled()
         .header(AnsiColor::Red.on_default() | Effects::BOLD)
@@ -10,6 +13,7 @@ fn styles() -> Styles {
         .placeholder(AnsiColor::Green.on_default())
 }
 
+#[cfg(feature = "cli")]
 #[derive(Parser, Debug)]
 #[command(
     author = "Mahmoud Harmouch",
@@ -56,6 +60,7 @@ EXAMPLES:
 For more information, visit: https://github.com/wiseaidev/ipcap
 "#
 )]
+#[cfg(feature = "cli")]
 pub struct Cli {
     #[arg(global = true, short, long)]
     pub verbose: bool,
