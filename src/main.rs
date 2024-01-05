@@ -33,7 +33,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // Perform IP lookup based on the provided target
         if !args.target.is_empty() {
             let record = geo_ip.get_record(&args.target);
-            pretty_print_dict(&record);
+            println!("{record:#?}");
         } else {
             // Print an error message and exit if the target is missing
             eprintln!("Error: Target is required!");
