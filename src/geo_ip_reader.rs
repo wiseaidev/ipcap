@@ -40,6 +40,7 @@ where
     netmask: usize,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct Record<'a> {
     pub dma_code: Option<i32>,
     pub area_code: Option<i32>,
@@ -327,8 +328,7 @@ where
 
         // Check if the offset is equal to the total number of database segments
         if seek_country == self.database_segments.try_into().unwrap() {
-            // This place should be here place for future error handling i think?
-            unimplemented!()
+            todo!("Error handling")
         }
 
         // Calculate the read length based on the record length and database segments
@@ -456,13 +456,11 @@ mod tests {
     fn test_get_time_zone_given_ip_addr() {
         let mut geo_ip = GeoIpReader::<File>::new().unwrap();
 
-        let mut result = geo_ip.get_time_zone_given_ip_addr("185.90.90.120");
+        let result = geo_ip.get_time_zone_given_ip_addr("185.90.90.120");
+        assert_eq!(result, "Asia/Riyadh".to_string());
 
-        assert_eq!(result, Some("Asia/Riyadh".to_string()));
-
-        result = geo_ip.get_time_zone_given_ip_addr("108.95.4.105");
-
-        assert_eq!(result, Some("America/Los_Angeles".to_string()));
+        let result = geo_ip.get_time_zone_given_ip_addr("108.95.4.105");
+        assert_eq!(result, "America/Los_Angeles");
     }
 
     #[test]
@@ -470,7 +468,7 @@ mod tests {
         let mut geo_ip = GeoIpReader::<File>::new().unwrap();
         let record = geo_ip.get_record("185.90.90.120");
 
-        assert_eq!(record["country_code"].as_deref(), Some("SA"));
+        assert_eq!(record.country_code, "SA");
     }
 
     #[test]
@@ -478,32 +476,31 @@ mod tests {
         let mut geo_ip = GeoIpReader::<File>::new().unwrap();
         let record = geo_ip.get_record("108.95.4.105");
 
-        let mut expected_values = HashMap::new();
-        expected_values.insert("country_code3", Some("USA".to_string()));
-        expected_values.insert("longitude", Some("-117.23349999999999".to_string()));
-        expected_values.insert("country_code", Some("US".to_string()));
-        expected_values.insert("continent", Some("NA".to_string()));
-        expected_values.insert("postal_code", Some("92109".to_string()));
-        expected_values.insert("area_code", Some("858".to_string()));
-        expected_values.insert("country_name", Some("United States".to_string()));
-        expected_values.insert("region_code", Some("CA".to_string()));
-        expected_values.insert("dma_code", Some("825".to_string()));
-        expected_values.insert("city", Some("San Diego".to_string()));
-        expected_values.insert("latitude", Some("32.79769999999999".to_string()));
-        expected_values.insert("time_zone", Some("America/Los_Angeles".to_string()));
-        expected_values.insert("metro_code", Some("San Diego, CA".to_string()));
+        let expected_value = Record {
+            dma_code: Some(825),
+            area_code: Some(858),
+            metro_code: Some("San Diego, CA"),
+            postal_code: Some("92109".to_string()),
+            country_code: "US",
+            country_code3: "USA",
+            country_name: "United States",
+            continent: "NA",
+            region_code: Some("CA".to_string()),
+            city: Some("San Diego".to_string()),
+            latitude: 32.79769999999999,
+            longitude: -117.23349999999999,
+            time_zone: "America/Los_Angeles".to_string()
+        };
 
-        for (key, expected_value) in expected_values.iter() {
-            assert_eq!(record.get(key).cloned(), Some(expected_value).cloned());
-        }
+        assert_eq!(record, expected_value);
     }
 
     #[test]
     #[should_panic(expected = "Invalid IP address")]
     fn test_get_record_with_invalid_ip() {
         let mut geo_ip = GeoIpReader::<File>::new().unwrap();
-        let record = geo_ip.get_record("-");
+        let _record = geo_ip.get_record("-");
 
-        assert_eq!(record.is_empty(), true);
+        todo!("Error handling")
     }
 }

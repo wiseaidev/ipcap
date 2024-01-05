@@ -17,35 +17,29 @@
 //! 2. Use the `IpCap` struct to perform IP lookup without internet access:
 //!
 //! ```rust
-//! use ipcap::geo_ip_reader::GeoIpReader;
-//! use ipcap::utils::pretty_print_dict;
 //! use std::fs::File;
-//! use std::collections::HashMap;
-//!
+//! use ipcap::geo_ip_reader::{GeoIpReader, Record};
 //!
 //! let mut geo_ip = GeoIpReader::<File>::new().unwrap();
 //! let record = geo_ip.get_record("108.95.4.105");
 //!
-//! let mut expected_values = HashMap::new();
-//! expected_values.insert("country_code3", Some("USA".to_string()));
-//! expected_values.insert("longitude", Some("-117.23349999999999".to_string()));
-//! expected_values.insert("country_code", Some("US".to_string()));
-//! expected_values.insert("continent", Some("NA".to_string()));
-//! expected_values.insert("postal_code", Some("92109".to_string()));
-//! expected_values.insert("area_code", Some("858".to_string()));
-//! expected_values.insert("country_name", Some("United States".to_string()));
-//! expected_values.insert("region_code", Some("CA".to_string()));
-//! expected_values.insert("dma_code", Some("825".to_string()));
-//! expected_values.insert("city", Some("San Diego".to_string()));
-//! expected_values.insert("latitude", Some("32.79769999999999".to_string()));
-//! expected_values.insert("time_zone", Some("America/Los_Angeles".to_string()));
-//! expected_values.insert("metro_code", Some("San Diego, CA".to_string()));
+//! let expected_value = Record {
+//!     dma_code: Some(825),
+//!     area_code: Some(858),
+//!     metro_code: Some("San Diego, CA"),
+//!     postal_code: Some("92109".to_string()),
+//!     country_code: "US",
+//!     country_code3: "USA",
+//!     country_name: "United States",
+//!     continent: "NA",
+//!     region_code: Some("CA".to_string()),
+//!     city: Some("San Diego".to_string()),
+//!     latitude: 32.79769999999999,
+//!     longitude: -117.23349999999999,
+//!     time_zone: "America/Los_Angeles".to_string()
+//! };
 //!
-//! for (key, expected_value) in expected_values.iter() {
-//!     assert_eq!(record.get(key).cloned(), Some(expected_value).cloned());
-//! }
-//!
-//! pretty_print_dict(&expected_values);
+//! assert_eq!(record, expected_value);
 //! ```
 //!
 //! ## Options
