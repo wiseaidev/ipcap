@@ -137,22 +137,26 @@ pub fn ip_to_number(ip: &str) -> u128 {
 ///
 /// # Examples
 ///
-/// ```
+/// ```rust
 /// use ipcap::utils::read_data;
 ///
 /// let buffer = b"Hello\0World";
 /// let pos = 0;
 /// let (new_pos, data) = read_data(buffer, pos);
 /// assert_eq!(new_pos, 5);
-/// assert_eq!(data, Some("Hello".to_string()));
+/// assert_eq!(data, Some("Hello".into()));
 /// ```
-pub fn read_data(buffer: &[u8], pos: usize) -> (usize, Option<String>) {
+pub fn read_data(buffer: &[u8], pos: usize) -> (usize, Option<Box<str>>) {
     let mut cur = pos;
     while buffer[cur] != 0 {
         cur += 1;
     }
     let data = if cur > pos {
-        Some(String::from_utf8_lossy(&buffer[pos..cur]).to_string())
+        Some(
+            String::from_utf8_lossy(&buffer[pos..cur])
+                .to_string()
+                .into_boxed_str()
+        )
     } else {
         None
     };
@@ -277,7 +281,7 @@ mod tests {
         let pos = 0;
         let (new_pos, data) = read_data(buffer, pos);
         assert_eq!(new_pos, 5);
-        assert_eq!(data, Some("Hello".to_string()));
+        assert_eq!(data, Some("Hello".into()));
     }
 
     #[test]

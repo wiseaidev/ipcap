@@ -45,16 +45,16 @@ pub struct Record<'a> {
     pub dma_code: Option<i32>,
     pub area_code: Option<i32>,
     pub metro_code: Option<&'a str>,
-    pub postal_code: Option<String>,
+    pub postal_code: Option<Box<str>>,
     pub country_code: &'a str,
     pub country_code3: &'a str,
     pub country_name: &'a str,
     pub continent: &'a str,
-    pub region_code: Option<String>,
-    pub city: Option<String>,
+    pub region_code: Option<Box<str>>,
+    pub city: Option<Box<str>>,
     pub latitude: f64,
     pub longitude: f64,
-    pub time_zone: String,
+    pub time_zone: &'a str,
 }
 
 impl<R> GeoIpReader<R>
@@ -390,13 +390,12 @@ where
             time_zone_by_country(
                 &country_code,
                 match &region_code {
-                    Some(d) => d.as_str(),
+                    Some(d) => d,
                     None => "default"
                 },
                 None
             )
-                .unwrap_or_default()
-                .to_string();
+                .unwrap_or_default();
 
         Record {
             dma_code,
@@ -426,7 +425,7 @@ where
     ///
     /// Time zone as a string.
     ///
-    pub fn get_time_zone_given_ip_addr(&mut self, addr: &str) -> String {
+    pub fn get_time_zone_given_ip_addr(&mut self, addr: &str) -> &str {
         let record = self.get_record(addr);
         record.time_zone
     }
@@ -480,16 +479,16 @@ mod tests {
             dma_code: Some(825),
             area_code: Some(858),
             metro_code: Some("San Diego, CA"),
-            postal_code: Some("92109".to_string()),
+            postal_code: Some("92109".into()),
             country_code: "US",
             country_code3: "USA",
             country_name: "United States",
             continent: "NA",
-            region_code: Some("CA".to_string()),
-            city: Some("San Diego".to_string()),
+            region_code: Some("CA".into()),
+            city: Some("San Diego".into()),
             latitude: 32.79769999999999,
             longitude: -117.23349999999999,
-            time_zone: "America/Los_Angeles".to_string()
+            time_zone: "America/Los_Angeles"
         };
 
         assert_eq!(record, expected_value);

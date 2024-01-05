@@ -812,11 +812,11 @@ pub static COUNTRY_DICT: Lazy<HashMap<&'static str, HashMap<&'static str, &'stat
 /// let inner_value = time_zone_by_country("AD", "multi_level", Some("inner_key"));
 /// assert_eq!(inner_value, None);
 /// ```
-pub fn time_zone_by_country(
+pub fn time_zone_by_country<'a>(
     country_code: &str,
     key1: &str,
     key2: Option<&str>,
-) -> Option<&'static str> {
+) -> Option<&'a str> {
     COUNTRY_DICT
         .get(country_code)
         .and_then(|inner_map| {

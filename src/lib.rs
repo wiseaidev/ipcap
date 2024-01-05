@@ -24,19 +24,19 @@
 //! let record = geo_ip.get_record("108.95.4.105");
 //!
 //! let expected_value = Record {
-//!     dma_code: Some(825),
-//!     area_code: Some(858),
-//!     metro_code: Some("San Diego, CA"),
-//!     postal_code: Some("92109".to_string()),
-//!     country_code: "US",
-//!     country_code3: "USA",
-//!     country_name: "United States",
-//!     continent: "NA",
-//!     region_code: Some("CA".to_string()),
-//!     city: Some("San Diego".to_string()),
-//!     latitude: 32.79769999999999,
-//!     longitude: -117.23349999999999,
-//!     time_zone: "America/Los_Angeles".to_string()
+//! dma_code: Some(825),
+//! area_code: Some(858),
+//! metro_code: Some("San Diego, CA"),
+//! postal_code: Some("92109".into()),
+//! country_code: "US",
+//! country_code3: "USA",
+//! country_name: "United States",
+//! continent: "NA",
+//! region_code: Some("CA".into()),
+//! city: Some("San Diego".into()),
+//! latitude: 32.79769999999999,
+//! longitude: -117.23349999999999,
+//! time_zone: "America/Los_Angeles"
 //! };
 //!
 //! assert_eq!(record, expected_value);
