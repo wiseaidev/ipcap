@@ -8,7 +8,6 @@ use crate::errors::GeoIpReaderError;
 use crate::time_zones::time_zone_by_country;
 use crate::utils::{ip_to_number, read_data};
 use dirs::home_dir;
-use std::collections::HashMap;
 use std::env;
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
@@ -39,6 +38,22 @@ where
     /// The starting point of the database segments in the GeoIP database.
     database_segments: u32,
     netmask: usize,
+}
+
+pub struct Record<'a> {
+    pub dma_code: Option<i32>,
+    pub area_code: Option<i32>,
+    pub metro_code: Option<&'a str>,
+    pub postal_code: Option<String>,
+    pub country_code: &'a str,
+    pub country_code3: &'a str,
+    pub country_name: &'a str,
+    pub continent: &'a str,
+    pub region_code: Option<String>,
+    pub city: Option<String>,
+    pub latitude: f64,
+    pub longitude: f64,
+    pub time_zone: String,
 }
 
 impl<R> GeoIpReader<R>
@@ -294,26 +309,7 @@ where
     ///
     /// * `ip_number` - The converted IP address as a 32-bit unsigned integer.
     ///
-    /// # Returns
-    ///
-    /// A HashMap containing geographical information:
-    ///
-    /// - "dma_code"
-    /// - "area_code"
-    /// - "metro_code"
-    /// - "postal_code"
-    /// - "country_code"
-    /// - "country_code3"
-    /// - "country_name"
-    /// - "continent"
-    /// - "region_code"
-    /// - "city"
-    /// - "latitude"
-    /// - "longitude"
-    /// - "time_zone"
-    ///
     /// # Examples
-    ///
     /// ```
     /// use ipcap::geo_ip_reader::GeoIpReader;
     /// use std::fs::File;
@@ -323,15 +319,16 @@ where
     /// let record = geo_ip.get_record("185.90.90.120");
     /// println!("Geographical Record: {:?}", record);
     /// ```
-    ///
-    pub fn get_record(&mut self, ip_number: &str) -> HashMap<&str, Option<String>> {
+    pub fn get_record(&mut self, ip_number: &str) -> Record {
         // Get the offset of the country record for the given IP address
         let seek_country = self
             .get_country(ip_to_number(ip_number).try_into().unwrap())
             .unwrap();
+
         // Check if the offset is equal to the total number of database segments
         if seek_country == self.database_segments.try_into().unwrap() {
-            return HashMap::new();
+            // This place should be here place for future error handling i think?
+            unimplemented!()
         }
 
         // Calculate the read length based on the record length and database segments
@@ -346,39 +343,20 @@ where
         // Read the record data into the buffer
         self.fp.read_exact(&mut buffer).unwrap();
 
-        // Initialize the record HashMap with default values
-        let mut record = HashMap::new();
-        record.insert("dma_code", Some("0".to_string()));
-        record.insert("area_code", Some("0".to_string()));
-        record.insert("metro_code", None);
-        record.insert("postal_code", None);
-
-        // Initialize latitude and longitude variables
         let mut latitude = 0;
         let mut longitude = 0;
 
-        // Extract information from the buffer and populate the record HashMap
         let char = buffer[0] as usize;
-        record.insert("country_code", Some(COUNTRY_CODES_TWO[char].to_string()));
-        record.insert("country_code3", Some(COUNTRY_CODES_THREE[char].to_string()));
-        record.insert("country_name", Some(COUNTRY_NAMES[char].to_string()));
-        record.insert("continent", Some(CONTINENT_NAMES[char].to_string()));
+        let country_code = COUNTRY_CODES_TWO[char];
+        let country_code3 = COUNTRY_CODES_THREE[char];
+        let country_name = COUNTRY_NAMES[char];
+        let continent = CONTINENT_NAMES[char];
 
-        // Read region code from the buffer
         let (offset, region_code) = read_data(&buffer, 1);
-        record.insert("region_code", region_code);
-
-        // Read city from the buffer
         let (offset, city) = read_data(&buffer, offset + 1);
-        record.insert("city", city);
-
-        // Read postal code from the buffer
         let (offset, postal_code) = read_data(&buffer, offset + 1);
-        record.insert("postal_code", postal_code);
-
         let offset = offset + 1;
 
-        // Calculate latitude and longitude from the buffer
         for j in 0..3 {
             latitude += (buffer[offset + j] as i32) << (j * 8);
         }
@@ -387,74 +365,54 @@ where
             longitude += (buffer[offset + j + 3] as i32) << (j * 8);
         }
 
-        // Calculate latitude and longitude values and insert into the record
-        record.insert(
-            "latitude",
-            Some(((latitude as f64) / 10000.0 - 180.0).to_string()),
-        );
-        record.insert(
-            "longitude",
-            Some(((longitude as f64) / 10000.0 - 180.0).to_string()),
-        );
+        let latitude = latitude as f64 / 10000.0 - 180.0;
+        let longitude = longitude as f64 / 10000.0 - 180.0;
 
-        // Process additional information for US in case of specific database types
-        if (self.database_type == CITY_EDITION_REV1 || self.database_type == CITY_EDITION_REV1_V6)
-            && record.get("country_code").unwrap() == &Some("US".to_string())
+        let (dma_code, area_code, metro_code) = if (self.database_type == CITY_EDITION_REV1 || self.database_type == CITY_EDITION_REV1_V6)
+            && country_code == "US"
         {
-            // Process DMA code and area code for US records
             let mut dma_area = 0;
             for j in 0..3 {
                 dma_area += (buffer[offset + j + 6] as i32) << (j * 8);
             }
-            record.insert("dma_code", Some((dma_area / 1000).to_string()));
-            record.insert("area_code", Some((dma_area % 1000).to_string()));
-            // Map DMA code to metro code using the DMAS mapping
-            record.insert(
-                "metro_code",
-                Some(
-                    DMAS.get(
-                        &record
-                            .get("dma_code")
-                            .unwrap()
-                            .clone()
-                            .unwrap()
-                            .parse::<i32>()
-                            .unwrap(),
-                    )
-                    .cloned()
-                    .unwrap_or("")
-                    .to_string(),
-                ),
-            );
+
+            let dma_code = dma_area / 1000;
+            let area_code = dma_area % 1000;
+
+            let metro_code = DMAS.get(&dma_code).cloned();
+
+            (Some(dma_code), Some(area_code), metro_code)
+        } else {
+            (None, None, None)
+        };
+
+        let time_zone =
+            time_zone_by_country(
+                &country_code,
+                match &region_code {
+                    Some(d) => d.as_str(),
+                    None => "default"
+                },
+                None
+            )
+                .unwrap_or_default()
+                .to_string();
+
+        Record {
+            dma_code,
+            area_code,
+            metro_code,
+            postal_code,
+            country_code,
+            country_code3,
+            country_name,
+            continent,
+            region_code,
+            city,
+            latitude,
+            longitude,
+            time_zone,
         }
-
-        // Obtain country code and region code from the record or provide default values
-        let country_code = record.get("country_code").cloned().unwrap_or_else(|| {
-            eprintln!("Warning: Country Code is missing or not a valid string");
-            Some("default".to_string())
-        });
-
-        let region_code = record.get("region_code").cloned().unwrap_or_else(|| {
-            eprintln!("Warning: Region Code is missing or not a valid string");
-            Some("default".to_string())
-        });
-
-        // Obtain time zone information based on country code and region code
-        let params = (
-            &country_code.unwrap_or("default".to_string()),
-            &region_code.unwrap_or("default".to_string()),
-        );
-        record.insert(
-            "time_zone",
-            Some(
-                time_zone_by_country(params.0, params.1, None)
-                    .unwrap_or_default()
-                    .to_string(),
-            ),
-        );
-
-        // Return the populated record HashMap
-        record
     }
 
     /// Look up the time zone for a given IP address.
@@ -468,9 +426,9 @@ where
     ///
     /// Time zone as a string.
     ///
-    pub fn get_time_zone_given_ip_addr(&mut self, addr: &str) -> Option<String> {
+    pub fn get_time_zone_given_ip_addr(&mut self, addr: &str) -> String {
         let record = self.get_record(addr);
-        record.get("time_zone")?.clone()
+        record.time_zone
     }
 }
 
