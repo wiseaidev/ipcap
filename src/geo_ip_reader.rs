@@ -379,7 +379,7 @@ where
             let dma_code = dma_area / 1000;
             let area_code = dma_area % 1000;
 
-            let metro_code = DMAS.get(&dma_code).cloned();
+            let metro_code = DMAS.get(&dma_code).copied();
 
             (Some(dma_code), Some(area_code), metro_code)
         } else {
@@ -388,7 +388,7 @@ where
 
         let time_zone =
             time_zone_by_country(
-                &country_code,
+                country_code,
                 match &region_code {
                     Some(d) => d,
                     None => "default"
