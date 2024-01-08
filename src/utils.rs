@@ -1,3 +1,4 @@
+use crate::geo_ip_reader::Record;
 use std::collections::HashMap;
 use std::net::{Ipv4Addr, Ipv6Addr};
 
@@ -155,7 +156,7 @@ pub fn read_data(buffer: &[u8], pos: usize) -> (usize, Option<Box<str>>) {
         Some(
             String::from_utf8_lossy(&buffer[pos..cur])
                 .to_string()
-                .into_boxed_str()
+                .into_boxed_str(),
         )
     } else {
         None
@@ -163,34 +164,35 @@ pub fn read_data(buffer: &[u8], pos: usize) -> (usize, Option<Box<str>>) {
     (cur, data)
 }
 
-/// Pretty prints a HashMap by sorting keys alphabetically and formatting the output.
+/// Pretty prints the fields of a Record struct by sorting them alphabetically and formatting the output.
 ///
 /// # Arguments
 ///
-/// * `data` - A reference to a HashMap with keys as string references and values as optional strings.
+/// * `record` - A reference to a Record struct.
 ///
 /// # Example
 ///
 /// ```rust
-/// use std::collections::HashMap;
 /// use ipcap::utils::pretty_print_dict;
+/// use ipcap::geo_ip_reader::Record;
 ///
-/// let mut data = HashMap::new();
-/// data.insert("time_zone", Some("America/Los_Angeles".to_string()));
-/// data.insert("dma_code", Some("807".to_string()));
-/// data.insert("continent", Some("NA".to_string()));
-/// data.insert("longitude", Some("-122.0881".to_string()));
-/// data.insert("area_code", Some("650".to_string()));
-/// data.insert("country_code", Some("US".to_string()));
-/// data.insert("postal_code", Some("94040".to_string()));
-/// data.insert("country_code3", Some("USA".to_string()));
-/// data.insert("country_name", Some("United States".to_string()));
-/// data.insert("metro_code", Some("San Francisco, CA".to_string()));
-/// data.insert("region_code", Some("CA".to_string()));
-/// data.insert("city", Some("Mountain View".to_string()));
-/// data.insert("latitude", Some("37.3845".to_string()));
+/// let record = Record {
+///     dma_code: Some(807),
+///     area_code: Some(650),
+///     metro_code: Some("San Francisco, CA"),
+///     postal_code: Some("94040".into()),
+///     country_code: "US",
+///     country_code3: "USA",
+///     country_name: "United States",
+///     continent: "NA",
+///     region_code: Some("CA".into()),
+///     city: Some("Mountain View".into()),
+///     latitude: 37.3845,
+///     longitude: -122.0881,
+///     time_zone: "America/Los_Angeles",
+/// };
 ///
-/// pretty_print_dict(&data);
+/// pretty_print_dict(&record);
 /// ```
 ///
 /// Output:
@@ -212,19 +214,38 @@ pub fn read_data(buffer: &[u8], pos: usize) -> (usize, Option<Box<str>>) {
 ///     "time_zone": "America/Los_Angeles",
 /// }
 /// ```
-pub fn pretty_print_dict(data: &HashMap<&str, Option<String>>) {
-    let mut sorted_keys: Vec<_> = data.keys().cloned().collect();
-    sorted_keys.sort();
+pub fn pretty_print_dict(record: &Record) {
+    let dma_code = record.dma_code.unwrap().to_string();
+    let area_code = record.area_code.expect("area code").to_string();
+    let latitude = record.latitude.to_string();
+    let longitude = record.longitude.to_string();
+
+    let data: Vec<(&str, Option<&str>)> = vec![
+        ("dma_code", Some(dma_code.as_str())),
+        ("area_code", Some(area_code.as_str())),
+        ("metro_code", record.metro_code),
+        ("postal_code", record.postal_code.as_deref()),
+        ("country_code", Some(record.country_code)),
+        ("country_code3", Some(record.country_code3)),
+        ("country_name", Some(record.country_name)),
+        ("continent", Some(record.continent)),
+        ("region_code", record.region_code.as_deref()),
+        ("city", record.city.as_deref()),
+        ("latitude", Some(latitude.as_str())),
+        ("longitude", Some(longitude.as_str())),
+        ("time_zone", Some(record.time_zone)),
+    ];
+
+    let mut sorted_data = data.clone();
+    sorted_data.sort_by(|a, b| a.0.cmp(b.0));
 
     println!("{{");
 
-    for key in sorted_keys {
+    for (key, value) in sorted_data {
         print!("    \"\u{1b}[1;32m{}\": ", key); // Green color for keys
-        if let Some(value) = data.get(key) {
-            match value {
-                Some(v) => print!("\u{1b}[1;37m\"{}\"\u{1b}[0m,", v), // Silver color for values
-                None => print!("\u{1b}[1;30mnull\u{1b}[0m,"),         // Gray color for null values
-            }
+        match value {
+            Some(v) => print!("\u{1b}[1;37m\"{}\"\u{1b}[0m,", v), // Silver color for values
+            None => print!("\u{1b}[1;30mnull\u{1b}[0m,"),         // Gray color for null values
         }
         println!();
     }
