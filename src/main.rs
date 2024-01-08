@@ -22,7 +22,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         use clap::Parser;
         use ipcap::cli::Cli;
         use ipcap::geo_ip_reader::GeoIpReader;
-        use ipcap::utils::pretty_print_dict;
         use std::fs::File;
         // Parse command-line arguments
         let args = Cli::parse();
@@ -33,7 +32,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // Perform IP lookup based on the provided target
         if !args.target.is_empty() {
             let record = geo_ip.get_record(&args.target);
-            pretty_print_dict(&record);
+            println!("{record:#?}");
         } else {
             // Print an error message and exit if the target is missing
             eprintln!("Error: Target is required!");
