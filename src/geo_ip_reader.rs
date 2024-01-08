@@ -368,7 +368,8 @@ where
         let latitude = latitude as f64 / 10000.0 - 180.0;
         let longitude = longitude as f64 / 10000.0 - 180.0;
 
-        let (dma_code, area_code, metro_code) = if (self.database_type == CITY_EDITION_REV1 || self.database_type == CITY_EDITION_REV1_V6)
+        let (dma_code, area_code, metro_code) = if (self.database_type == CITY_EDITION_REV1
+            || self.database_type == CITY_EDITION_REV1_V6)
             && country_code == "US"
         {
             let mut dma_area = 0;
@@ -386,16 +387,15 @@ where
             (None, None, None)
         };
 
-        let time_zone =
-            time_zone_by_country(
-                country_code,
-                match &region_code {
-                    Some(d) => d,
-                    None => "default"
-                },
-                None
-            )
-                .unwrap_or_default();
+        let time_zone = time_zone_by_country(
+            country_code,
+            match &region_code {
+                Some(d) => d,
+                None => "default",
+            },
+            None,
+        )
+        .unwrap_or_default();
 
         Record {
             dma_code,
@@ -488,7 +488,7 @@ mod tests {
             city: Some("San Diego".into()),
             latitude: 32.79769999999999,
             longitude: -117.23349999999999,
-            time_zone: "America/Los_Angeles"
+            time_zone: "America/Los_Angeles",
         };
 
         assert_eq!(record, expected_value);
