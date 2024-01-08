@@ -1,6 +1,6 @@
 [package]
 name = "ipcap"
-version = "0.1.2"
+version = "0.1.3"
 description = "🌍 A CLI & library for decoding IP addresses into state, postal code, country, coordinates, etc without internet access."
 license = "MIT"
 keywords = ["ip", "geolocation", "geoip", "ipcap"]
