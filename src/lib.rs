@@ -67,3 +67,4 @@ pub mod geo_ip_reader;
 pub mod time_zones;
 pub mod utils;
 pub mod countries;
+pub mod continents;

@@ -1,6 +1,5 @@
 pub fn name_to_enum_name(name: &str) -> String {
     let before_coma = name.split(",").collect::<Vec<&str>>()[0];
-    // panic!("{before_coma}");
     String::from_iter(
         remove_content_in_brackets(before_coma).chars()
             .filter(|char| char.is_alphabetic())

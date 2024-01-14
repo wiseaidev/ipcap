@@ -1,9 +1,14 @@
 use std::fmt::{Display, Formatter};
 use crate::codegen;
+use crate::continents::Continent;
 
 codegen!("countries-enum-values");
 
 impl Country {
+    pub fn from_buffer(value: u8) -> Option<Self> {
+        codegen!("countries-from-buffer")
+    }
+
     /// ```rust
     /// let country = Country::Poland;
     ///
@@ -25,8 +30,8 @@ impl Country {
         codegen!("countries-codes-3-reverse")
     }
 
-    pub fn from_buffer(value: u8) -> Option<Self> {
-        codegen!("countries-from-buffer")
+    pub fn continent(&self) -> Option<Continent> {
+        self.into()
     }
 }
 

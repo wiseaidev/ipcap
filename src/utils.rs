@@ -175,16 +175,14 @@ pub fn read_data(buffer: &[u8], pos: usize) -> (usize, Option<Box<str>>) {
 /// ```rust
 /// use ipcap::utils::pretty_print_dict;
 /// use ipcap::geo_ip_reader::Record;
+/// use ipcap::countries::Country;
 ///
 /// let record = Record {
 ///     dma_code: Some(807),
 ///     area_code: Some(650),
 ///     metro_code: Some("San Francisco, CA"),
 ///     postal_code: Some("94040".into()),
-///     country_code: "US",
-///     country_code3: "USA",
-///     country_name: "United States",
-///     continent: "NA",
+///     country: Country::UntiedStates,
 ///     region_code: Some("CA".into()),
 ///     city: Some("Mountain View".into()),
 ///     latitude: 37.3845,
@@ -219,6 +217,8 @@ pub fn pretty_print_dict(record: &Record) {
     let area_code = record.area_code.expect("area code").to_string();
     let latitude = record.latitude.to_string();
     let longitude = record.longitude.to_string();
+    let country_name = record.country.to_string();
+    let continent = record.country.continent().map(|c| c.to_string());
 
     let data: Vec<(&str, Option<&str>)> = vec![
         ("dma_code", Some(dma_code.as_str())),
@@ -227,8 +227,8 @@ pub fn pretty_print_dict(record: &Record) {
         ("postal_code", record.postal_code.as_deref()),
         ("country_code", Some(record.country.alphabetic_code_2())),
         ("country_code3", Some(record.country.alphabetic_code_3())),
-        ("country_name", Some(&record.country.to_string())),
-        ("continent", Some(record.country.continent())),
+        ("country_name", Some(&country_name)),
+        ("continent", continent.as_deref()),
         ("region_code", record.region_code.as_deref()),
         ("city", record.city.as_deref()),
         ("latitude", Some(latitude.as_str())),
