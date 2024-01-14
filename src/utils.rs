@@ -324,3 +324,10 @@ mod tests {
         assert_eq!(data, None);
     }
 }
+
+#[macro_export]
+macro_rules! codegen {
+    ($name: expr) => {
+        include!(concat!(env!("OUT_DIR"), "/", $name));
+    };
+}

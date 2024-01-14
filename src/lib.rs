@@ -61,12 +61,9 @@
 #[cfg(feature = "cli")]
 pub mod cli;
 pub mod constants;
-pub mod continent_names;
-pub mod countries_codes_three;
-pub mod countries_codes_two;
-pub mod countries_names;
 pub mod designated_market_area;
 pub mod errors;
 pub mod geo_ip_reader;
 pub mod time_zones;
 pub mod utils;
+pub mod countries;
