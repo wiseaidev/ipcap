@@ -3,9 +3,9 @@ use crate::codegen;
 
 codegen!("countries-enum-values");
 
-impl Countries {
+impl Country {
     /// ```rust
-    /// let country = Countries::Poland;
+    /// let country = Country::Poland;
     ///
     /// assert_eq!(country.alphabetic_code_2(), "PL")
     /// ```
@@ -24,9 +24,13 @@ impl Countries {
     pub fn from_alphabetic_code_3(value: &str) -> Option<Self> {
         codegen!("countries-codes-3-reverse")
     }
+
+    pub fn from_buffer(value: u8) -> Option<Self> {
+        codegen!("countries-from-buffer")
+    }
 }
 
-impl Display for Countries {
+impl Display for Country {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         codegen!("countries-to-names")
     }

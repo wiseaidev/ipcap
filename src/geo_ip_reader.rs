@@ -1,12 +1,9 @@
 use crate::constants::*;
-use crate::continent_names::CONTINENT_NAMES;
-use crate::countries_codes_three::COUNTRY_CODES_THREE;
-use crate::countries_codes_two::COUNTRY_CODES_TWO;
-use crate::countries_names::COUNTRY_NAMES;
 use crate::designated_market_area::DMAS;
 use crate::errors::GeoIpReaderError;
 use crate::time_zones::time_zone_by_country;
 use crate::utils::{ip_to_number, read_data};
+use crate::countries::Country;
 use dirs::home_dir;
 use std::env;
 use std::fs::File;
@@ -46,10 +43,7 @@ pub struct Record<'a> {
     pub area_code: Option<i32>,
     pub metro_code: Option<&'a str>,
     pub postal_code: Option<Box<str>>,
-    pub country_code: &'a str,
-    pub country_code3: &'a str,
-    pub country_name: &'a str,
-    pub continent: &'a str,
+    pub country: Country,
     pub region_code: Option<Box<str>>,
     pub city: Option<Box<str>>,
     pub latitude: f64,
@@ -346,11 +340,7 @@ where
         let mut latitude = 0;
         let mut longitude = 0;
 
-        let char = buffer[0] as usize;
-        let country_code = COUNTRY_CODES_TWO[char];
-        let country_code3 = COUNTRY_CODES_THREE[char];
-        let country_name = COUNTRY_NAMES[char];
-        let continent = CONTINENT_NAMES[char];
+        let country = Country::from_buffer(buffer[0]).unwrap();
 
         let (offset, region_code) = read_data(&buffer, 1);
         let (offset, city) = read_data(&buffer, offset + 1);
@@ -370,7 +360,7 @@ where
 
         let (dma_code, area_code, metro_code) = if (self.database_type == CITY_EDITION_REV1
             || self.database_type == CITY_EDITION_REV1_V6)
-            && country_code == "US"
+            && country == Country::UnitedStates
         {
             let mut dma_area = 0;
             for j in 0..3 {
@@ -388,7 +378,7 @@ where
         };
 
         let time_zone = time_zone_by_country(
-            country_code,
+            country.alphabetic_code_2(),
             match &region_code {
                 Some(d) => d,
                 None => "default",
@@ -402,10 +392,7 @@ where
             area_code,
             metro_code,
             postal_code,
-            country_code,
-            country_code3,
-            country_name,
-            continent,
+            country,
             region_code,
             city,
             latitude,
