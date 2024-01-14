@@ -454,7 +454,7 @@ mod tests {
         let mut geo_ip = GeoIpReader::<File>::new().unwrap();
         let record = geo_ip.get_record("185.90.90.120");
 
-        assert_eq!(record.country_code, "SA");
+        assert_eq!(record.country, Country::SaudiArabia);
     }
 
     #[test]
@@ -467,10 +467,7 @@ mod tests {
             area_code: Some(858),
             metro_code: Some("San Diego, CA"),
             postal_code: Some("92109".into()),
-            country_code: "US",
-            country_code3: "USA",
-            country_name: "United States",
-            continent: "NA",
+            country: Country::UnitedStates,
             region_code: Some("CA".into()),
             city: Some("San Diego".into()),
             latitude: 32.79769999999999,

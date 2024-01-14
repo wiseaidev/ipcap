@@ -182,7 +182,7 @@ pub fn read_data(buffer: &[u8], pos: usize) -> (usize, Option<Box<str>>) {
 ///     area_code: Some(650),
 ///     metro_code: Some("San Francisco, CA"),
 ///     postal_code: Some("94040".into()),
-///     country: Country::UntiedStates,
+///     country: Country::UnitedStates,
 ///     region_code: Some("CA".into()),
 ///     city: Some("Mountain View".into()),
 ///     latitude: 37.3845,
@@ -328,6 +328,10 @@ mod tests {
 #[macro_export]
 macro_rules! codegen {
     ($name: expr) => {
+        include!(concat!(env!("OUT_DIR"), "/", $name))
+    };
+
+    (statement; $name: expr) => {
         include!(concat!(env!("OUT_DIR"), "/", $name));
     };
 }

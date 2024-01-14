@@ -1,7 +1,8 @@
-use std::fmt::{Display, Formatter, Write};
+use std::fmt::{Display, Formatter};
 use crate::codegen;
 use crate::countries::Country;
 
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub enum Continent {
     Africa,
     Antarctica,
