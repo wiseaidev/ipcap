@@ -1,9 +1,9 @@
 use crate::constants::*;
+use crate::countries::Country;
 use crate::designated_market_area::DMAS;
 use crate::errors::GeoIpReaderError;
 use crate::time_zones::time_zone_by_country;
 use crate::utils::{ip_to_number, read_data};
-use crate::countries::Country;
 use dirs::home_dir;
 use std::env;
 use std::fs::File;

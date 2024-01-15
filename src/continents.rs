@@ -1,6 +1,6 @@
-use std::fmt::{Display, Formatter};
 use crate::codegen;
 use crate::countries::Country;
+use std::fmt::{Display, Formatter};
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub enum Continent {
@@ -10,7 +10,7 @@ pub enum Continent {
     Europe,
     NorthAmerica,
     Oceania,
-    SouthAmerica
+    SouthAmerica,
 }
 
 impl Continent {
@@ -22,7 +22,7 @@ impl Continent {
             Continent::Europe => "EU",
             Continent::NorthAmerica => "NA",
             Continent::Oceania => "OC",
-            Continent::SouthAmerica => "SA"
+            Continent::SouthAmerica => "SA",
         }
     }
 }
@@ -36,7 +36,7 @@ impl Display for Continent {
             Continent::Europe => f.write_str("Europe"),
             Continent::NorthAmerica => f.write_str("North America"),
             Continent::Oceania => f.write_str("Oceania"),
-            Continent::SouthAmerica => f.write_str("South America")
+            Continent::SouthAmerica => f.write_str("South America"),
         }
     }
 }

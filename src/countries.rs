@@ -1,6 +1,6 @@
-use std::fmt::{Display, Formatter};
 use crate::codegen;
 use crate::continents::Continent;
+use std::fmt::{Display, Formatter};
 
 codegen!(statement; "countries-enum-values");
 
