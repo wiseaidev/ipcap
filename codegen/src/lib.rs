@@ -31,6 +31,33 @@ macro_rules! codes_reverse {
     }};
 }
 
+macro_rules! save_content {
+    ($data: expr, $value: expr, $file_name: expr) => {
+        let out_dir = std::env::var("OUT_DIR").unwrap();
+        fs::write(
+            format!("{out_dir}/{}", $file_name),
+            format!(
+                r#"match {} {{
+                    {}
+                }}"#,
+                $value,
+                $data
+            ),
+        )
+        .unwrap();
+    };
+}
+
+macro_rules! codes_with_fs_write {
+    (reverse $data: expr, $enum_names: expr, $file_name: expr) => {
+        save_content!(codes_reverse!($data, $enum_names), "value", $file_name);
+    };
+
+    ($data: expr, $enum_names: expr, $file_name: expr) => {
+        save_content!(codes!($data, $enum_names), "self", $file_name);
+    };
+}
+
 pub fn run() {
     const OFFSET: u8 = 1;
     let names_by_line = NAMES_DATA.split("\n");
@@ -54,29 +81,10 @@ pub fn run() {
     )
     .unwrap();
 
-    fs::write(
-        format!("{out_dir}/countries-codes-2"),
-        "match self {".to_string() + codes!(CODES_2_DATA, enum_names) + "}",
-    )
-    .unwrap();
-
-    fs::write(
-        format!("{out_dir}/countries-codes-3"),
-        "match self {".to_string() + codes!(CODES_3_DATA, enum_names) + "}",
-    )
-    .unwrap();
-
-    fs::write(
-        format!("{out_dir}/countries-codes-2-reverse"),
-        "match value {".to_string() + &*codes_reverse!(CODES_2_DATA, enum_names) + "}",
-    )
-    .unwrap();
-
-    fs::write(
-        format!("{out_dir}/countries-codes-3-reverse"),
-        "match value {".to_string() + &*codes_reverse!(CODES_3_DATA, enum_names) + "}",
-    )
-    .unwrap();
+    codes_with_fs_write!(CODES_2_DATA, enum_names, "countries-code-2");
+    codes_with_fs_write!(CODES_3_DATA, enum_names, "countries-code-3");
+    codes_with_fs_write!(reverse CODES_2_DATA, enum_names, "countries-codes-2-reverse");
+    codes_with_fs_write!(reverse CODES_3_DATA, enum_names, "countries-codes-3-reverse");
 
     let match_pattern = names_by_line
         .clone()
