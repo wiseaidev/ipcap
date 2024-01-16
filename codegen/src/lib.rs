@@ -7,6 +7,19 @@ const NAMES_DATA: &str = include_str!("../countries-names.txt");
 const CODES_2_DATA: &str = include_str!("../countries-two.txt");
 const CODES_3_DATA: &str = include_str!("../countries-three.txt");
 const COUNTRIES_TO_CONTINENTS: &str = include_str!("../countries-to-continents.txt");
+const DMA: &str = include_str!("../dma.txt");
+
+trait PushMut<T> {
+    fn add(self, item: T) -> Self;
+}
+
+impl<T> PushMut<T> for Vec<T> {
+    fn add(self, item: T) -> Self {
+        let mut new = self;
+        new.push(item);
+        new
+    }
+}
 
 macro_rules! codes {
     ($data: expr, $enum_names: expr) => {
@@ -21,21 +34,43 @@ macro_rules! codes {
 
 macro_rules! codes_reverse {
     ($data: expr, $enum_names: expr) => {{
-        let mut d = $data
+        $data
             .split('\n')
             .enumerate()
             .map(|(i, code)| format!("\"{}\" => Some(Country::{})", code, $enum_names[i]))
-            .collect::<Vec<String>>();
-        d.push("_ => None".to_string());
-        d.join(",\n")
+            .collect::<Vec<String>>()
+            .add("_ => None".to_string())
+            .join(",\n")
     }};
 }
 
-macro_rules! save_content {
-    ($data: expr, $value: expr, $file_name: expr) => {
+macro_rules! _save_content {
+    ($data: expr, $file_name: expr) => {
         let out_dir = std::env::var("OUT_DIR").unwrap();
         fs::write(
             format!("{out_dir}/{}", $file_name),
+            $data
+        )
+        .unwrap();
+    };
+}
+
+macro_rules! save_content {
+    (result $data: expr, $value: expr, $file_name: expr) => {
+        _save_content!(
+            format!(
+                r#"Ok(match {} {{
+                    {}
+                }}?)"#,
+                $value,
+                $data
+            ),
+            $file_name
+        )
+    };
+
+    ($data: expr, $value: expr, $file_name: expr) => {
+        _save_content!(
             format!(
                 r#"match {} {{
                     {}
@@ -43,8 +78,8 @@ macro_rules! save_content {
                 $value,
                 $data
             ),
+            $file_name
         )
-        .unwrap();
     };
 }
 
@@ -92,32 +127,16 @@ pub fn run() {
         .map(|(i, name)| format!("Country::{} => f.write_str(\"{name}\")", enum_names[i]))
         .collect::<Vec<String>>()
         .join(",\n");
-    fs::write(
-        format!("{out_dir}/countries-to-names"),
-        format!(
-            r"Ok(match self {{
-                {match_pattern}
-            }}?)"
-        ),
-    )
-    .unwrap();
+    save_content!(result match_pattern, "self", "countries-to-names");
 
     let match_pattern = enum_names
         .iter()
         .enumerate()
         .map(|(i, name)| format!("{} => Some(Country::{name})", i as u8 + OFFSET))
         .collect::<Vec<String>>()
+        .add("_ => None".to_string())
         .join(",\n");
-    fs::write(
-        format!("{out_dir}/countries-from-buffer"),
-        format!(
-            r#"match value {{
-                {match_pattern},
-                _ => None
-            }}"#
-        ),
-    )
-    .unwrap();
+    save_content!(match_pattern, "value", "countries-from-buffer");
 
     let match_pattern = COUNTRIES_TO_CONTINENTS
         .split('\n')
@@ -131,13 +150,15 @@ pub fn run() {
         })
         .collect::<Vec<String>>()
         .join(",\n");
-    fs::write(
-        format!("{out_dir}/country-to-continent"),
-        format!(
-            r#"match value {{
-               {match_pattern}
-            }}"#
-        ),
-    )
-    .unwrap();
+    save_content!(match_pattern, "value", "country-to-continent");
+
+    let match_pattern = DMA.split('\n')
+        .map(|dma| {
+            let data: Vec<&str> = dma.split("; ").collect();
+            format!("{} => f.write_str(\"{}\")", data[0], data[1])
+        })
+        .collect::<Vec<String>>()
+        .add("_ => f.write_str(\"Unknown DMA\")".to_string())
+        .join(",\n");
+    save_content!(match_pattern, "self.0", "dma-code-to-name");
 }
