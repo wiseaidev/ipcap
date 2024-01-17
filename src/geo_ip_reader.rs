@@ -1,6 +1,6 @@
 use crate::constants::*;
 use crate::countries::Country;
-use crate::designated_market_area::DMAS;
+use crate::designated_market_area::DesignatedMarketArea;
 use crate::errors::GeoIpReaderError;
 use crate::time_zones::time_zone_by_country;
 use crate::utils::{ip_to_number, read_data};
@@ -39,9 +39,7 @@ where
 
 #[derive(Debug, PartialEq)]
 pub struct Record<'a> {
-    pub dma_code: Option<i32>,
-    pub area_code: Option<i32>,
-    pub metro_code: Option<&'a str>,
+    pub dma: Option<DesignatedMarketArea>,
     pub postal_code: Option<Box<str>>,
     pub country: Country,
     pub region_code: Option<Box<str>>,
@@ -358,24 +356,17 @@ where
         let latitude = latitude as f64 / 10000.0 - 180.0;
         let longitude = longitude as f64 / 10000.0 - 180.0;
 
-        let (dma_code, area_code, metro_code) = if (self.database_type == CITY_EDITION_REV1
+        let dma = if (self.database_type == CITY_EDITION_REV1
             || self.database_type == CITY_EDITION_REV1_V6)
             && country == Country::UnitedStates
         {
             let mut dma_area = 0;
             for j in 0..3 {
-                dma_area += (buffer[offset + j + 6] as i32) << (j * 8);
+                dma_area += (buffer[offset + j + 6] as u32) << (j * 8);
             }
 
-            let dma_code = dma_area / 1000;
-            let area_code = dma_area % 1000;
-
-            let metro_code = DMAS.get(&dma_code).copied();
-
-            (Some(dma_code), Some(area_code), metro_code)
-        } else {
-            (None, None, None)
-        };
+            Some(DesignatedMarketArea(dma_area))
+        } else { None };
 
         let time_zone = time_zone_by_country(
             country.alphabetic_code_2(),
@@ -388,9 +379,7 @@ where
         .unwrap_or_default();
 
         Record {
-            dma_code,
-            area_code,
-            metro_code,
+            dma,
             postal_code,
             country,
             region_code,
@@ -463,9 +452,7 @@ mod tests {
         let record = geo_ip.get_record("108.95.4.105");
 
         let expected_value = Record {
-            dma_code: Some(825),
-            area_code: Some(858),
-            metro_code: Some("San Diego, CA"),
+            dma: Some(DesignatedMarketArea(825858)),
             postal_code: Some("92109".into()),
             country: Country::UnitedStates,
             region_code: Some("CA".into()),

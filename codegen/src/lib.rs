@@ -116,8 +116,8 @@ pub fn run() {
     )
     .unwrap();
 
-    codes_with_fs_write!(CODES_2_DATA, enum_names, "countries-code-2");
-    codes_with_fs_write!(CODES_3_DATA, enum_names, "countries-code-3");
+    codes_with_fs_write!(CODES_2_DATA, enum_names, "countries-codes-2");
+    codes_with_fs_write!(CODES_3_DATA, enum_names, "countries-codes-3");
     codes_with_fs_write!(reverse CODES_2_DATA, enum_names, "countries-codes-2-reverse");
     codes_with_fs_write!(reverse CODES_3_DATA, enum_names, "countries-codes-3-reverse");
 
@@ -160,5 +160,5 @@ pub fn run() {
         .collect::<Vec<String>>()
         .add("_ => f.write_str(\"Unknown DMA\")".to_string())
         .join(",\n");
-    save_content!(match_pattern, "self.0", "dma-code-to-name");
+    save_content!(match_pattern, "value", "dma-code-to-name");
 }

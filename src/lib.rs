@@ -20,14 +20,13 @@
 //! use std::fs::File;
 //! use ipcap::geo_ip_reader::{GeoIpReader, Record};
 //! use ipcap::countries::Country;
+//! use ipcap::designated_market_area::DesignatedMarketArea;
 //!
 //! let mut geo_ip = GeoIpReader::<File>::new().unwrap();
 //! let record = geo_ip.get_record("108.95.4.105");
 //!
 //! let expected_value = Record {
-//! dma_code: Some(825),
-//! area_code: Some(858),
-//! metro_code: Some("San Diego, CA"),
+//! dma: Some(DesignatedMarketArea(825858)),
 //! postal_code: Some("92109".into()),
 //! country: Country::UnitedStates,
 //! region_code: Some("CA".into()),
