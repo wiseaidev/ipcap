@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ```sh
-ipcap 0.1.3
+ipcap 0.1.4
 
  ▄█     ▄███████▄  ▄████████    ▄████████    ▄███████▄ 
 ███    ███    ███ ███    ███   ███    ███   ███    ███ 
@@ -133,7 +133,7 @@ ipcap = "0.1.2"
 use ipcap::geo_ip_reader::GeoIpReader;
 use std::fs::File;
 
-fn fn main() {
+fn main() {
     let mut geo_ip = GeoIpReader::<File>::new().unwrap();
     let record = geo_ip.get_record("8.8.8.8");
 
