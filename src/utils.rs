@@ -175,16 +175,13 @@ pub fn read_data(buffer: &[u8], pos: usize) -> (usize, Option<Box<str>>) {
 /// ```rust
 /// use ipcap::utils::pretty_print_dict;
 /// use ipcap::geo_ip_reader::Record;
+/// use ipcap::countries::Country;
+/// use ipcap::designated_market_area::DesignatedMarketArea;
 ///
 /// let record = Record {
-///     dma_code: Some(807),
-///     area_code: Some(650),
-///     metro_code: Some("San Francisco, CA"),
+///     dma: Some(DesignatedMarketArea(80700)),
 ///     postal_code: Some("94040".into()),
-///     country_code: "US",
-///     country_code3: "USA",
-///     country_name: "United States",
-///     continent: "NA",
+///     country: Country::UnitedStates,
 ///     region_code: Some("CA".into()),
 ///     city: Some("Mountain View".into()),
 ///     latitude: 37.3845,
@@ -192,7 +189,7 @@ pub fn read_data(buffer: &[u8], pos: usize) -> (usize, Option<Box<str>>) {
 ///     time_zone: "America/Los_Angeles",
 /// };
 ///
-/// pretty_print_dict(&record);
+/// pretty_print_dict(record);
 /// ```
 ///
 /// Output:
@@ -214,26 +211,21 @@ pub fn read_data(buffer: &[u8], pos: usize) -> (usize, Option<Box<str>>) {
 ///     "time_zone": "America/Los_Angeles",
 /// }
 /// ```
-pub fn pretty_print_dict(record: &Record) {
-    let dma_code = record.dma_code.unwrap().to_string();
-    let area_code = record.area_code.expect("area code").to_string();
-    let latitude = record.latitude.to_string();
-    let longitude = record.longitude.to_string();
-
-    let data: Vec<(&str, Option<&str>)> = vec![
-        ("dma_code", Some(dma_code.as_str())),
-        ("area_code", Some(area_code.as_str())),
-        ("metro_code", record.metro_code),
-        ("postal_code", record.postal_code.as_deref()),
-        ("country_code", Some(record.country_code)),
-        ("country_code3", Some(record.country_code3)),
-        ("country_name", Some(record.country_name)),
-        ("continent", Some(record.continent)),
-        ("region_code", record.region_code.as_deref()),
-        ("city", record.city.as_deref()),
-        ("latitude", Some(latitude.as_str())),
-        ("longitude", Some(longitude.as_str())),
-        ("time_zone", Some(record.time_zone)),
+pub fn pretty_print_dict(record: Record) {
+    let data: Vec<(&str, Option<String>)> = vec![
+        ("dma_code", record.dma.map(|d| d.dma_code().to_string())),
+        ("area_code", record.dma.map(|d| d.area_code().to_string())),
+        ("metro_code", record.dma.map(|c| c.to_string())),
+        ("postal_code", record.postal_code.as_ref().map(|d| d.to_string())),
+        ("country_code", Some(record.country.alphabetic_code_2().to_string())),
+        ("country_code3", Some(record.country.alphabetic_code_3().to_string())),
+        ("country_name", Some(record.country.to_string())),
+        ("continent", record.country.continent().map(|c| c.to_string())),
+        ("region_code", record.region_code.map(|d| d.to_string())),
+        ("city", record.city.map(|d| d.to_string())),
+        ("latitude", Some(record.latitude.to_string())),
+        ("longitude", Some(record.longitude.to_string())),
+        ("time_zone", Some(record.time_zone.to_string())),
     ];
 
     let mut sorted_data = data.clone();
@@ -323,4 +315,15 @@ mod tests {
         assert_eq!(new_pos, buffer.len());
         assert_eq!(data, None);
     }
+}
+
+#[macro_export]
+macro_rules! codegen {
+    ($name: expr) => {
+        include!(concat!(env!("OUT_DIR"), "/", $name))
+    };
+
+    (statement; $name: expr) => {
+        include!(concat!(env!("OUT_DIR"), "/", $name));
+    };
 }

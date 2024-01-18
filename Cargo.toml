@@ -18,6 +18,9 @@ clap = { version = "4.4.12", features = ["derive"] , optional = true }
 dirs = "5.0.1"
 once_cell = "1.19.0"
 
+[build-dependencies]
+codegen = { path = "codegen" }
+
 [features]
 cli = ["clap"]
 
