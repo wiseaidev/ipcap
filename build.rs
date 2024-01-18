@@ -1,5 +1,8 @@
-#[path = "codegen/src/code_gen.rs"]
-pub mod code_gen;
+#[path = "src/codegen.rs"]
+pub mod codegen;
+
+#[path = "src/names.rs"]
+pub mod names;
 
 use codegen::run;
 

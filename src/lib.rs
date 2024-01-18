@@ -65,7 +65,5 @@ pub mod errors;
 pub mod geo_ip_reader;
 pub mod time_zones;
 pub mod utils;
-#[path = "../codegen/src/code_gen.rs"]
-pub mod code_gen;
-#[path = "../codegen/src/names.rs"]
+pub mod codegen;
 pub mod names;
