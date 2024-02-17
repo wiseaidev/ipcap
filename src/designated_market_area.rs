@@ -1,5 +1,5 @@
-use std::fmt::{Display, Formatter};
 use crate::codegen;
+use std::fmt::{Display, Formatter};
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct DesignatedMarketArea(pub u32);

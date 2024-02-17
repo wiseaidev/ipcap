@@ -366,7 +366,9 @@ where
             }
 
             Some(DesignatedMarketArea(dma_area))
-        } else { None };
+        } else {
+            None
+        };
 
         let time_zone = time_zone_by_country(
             country.alphabetic_code_2(),

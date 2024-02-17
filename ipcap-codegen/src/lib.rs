@@ -1,11 +1,13 @@
-use crate::names::_name_to_enum_name;
+use crate::names::name_to_enum_name;
 use std::fs;
 
-const NAMES_DATA: &str = include_str!("countries-names.txt");
-const CODES_2_DATA: &str = include_str!("countries-two.txt");
-const CODES_3_DATA: &str = include_str!("countries-three.txt");
-const COUNTRIES_TO_CONTINENTS: &str = include_str!("countries-to-continents.txt");
-const DMA: &str = include_str!("dma.txt");
+mod names;
+
+const NAMES_DATA: &str = include_str!("../countries-names.txt");
+const CODES_2_DATA: &str = include_str!("../countries-two.txt");
+const CODES_3_DATA: &str = include_str!("../countries-three.txt");
+const COUNTRIES_TO_CONTINENTS: &str = include_str!("../countries-to-continents.txt");
+const DMA: &str = include_str!("../dma.txt");
 
 trait PushMut<T> {
     fn add(self, item: T) -> Self;
@@ -96,7 +98,7 @@ pub fn run() {
     let names_by_line = NAMES_DATA.split("\n");
     let enum_names = names_by_line
         .clone()
-        .map(_name_to_enum_name)
+        .map(name_to_enum_name)
         .collect::<Vec<String>>();
 
     let out_dir = std::env::var("OUT_DIR").unwrap();
