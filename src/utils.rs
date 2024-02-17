@@ -216,11 +216,23 @@ pub fn pretty_print_dict(record: Record) {
         ("dma_code", record.dma.map(|d| d.dma_code().to_string())),
         ("area_code", record.dma.map(|d| d.area_code().to_string())),
         ("metro_code", record.dma.map(|c| c.to_string())),
-        ("postal_code", record.postal_code.as_ref().map(|d| d.to_string())),
-        ("country_code", Some(record.country.alphabetic_code_2().to_string())),
-        ("country_code3", Some(record.country.alphabetic_code_3().to_string())),
+        (
+            "postal_code",
+            record.postal_code.as_ref().map(|d| d.to_string()),
+        ),
+        (
+            "country_code",
+            Some(record.country.alphabetic_code_2().to_string()),
+        ),
+        (
+            "country_code3",
+            Some(record.country.alphabetic_code_3().to_string()),
+        ),
         ("country_name", Some(record.country.to_string())),
-        ("continent", record.country.continent().map(|c| c.to_string())),
+        (
+            "continent",
+            record.country.continent().map(|c| c.to_string()),
+        ),
         ("region_code", record.region_code.map(|d| d.to_string())),
         ("city", record.city.map(|d| d.to_string())),
         ("latitude", Some(record.latitude.to_string())),

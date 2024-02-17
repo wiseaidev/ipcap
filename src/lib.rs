@@ -11,7 +11,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! ipcap = "0.1.2"
+//! ipcap = "0.1.5"
 //! ```
 //!
 //! 2. Use the `IpCap` struct to perform IP lookup without internet access:
@@ -26,14 +26,14 @@
 //! let record = geo_ip.get_record("108.95.4.105");
 //!
 //! let expected_value = Record {
-//! dma: Some(DesignatedMarketArea(825858)),
-//! postal_code: Some("92109".into()),
-//! country: Country::UnitedStates,
-//! region_code: Some("CA".into()),
-//! city: Some("San Diego".into()),
-//! latitude: 32.79769999999999,
-//! longitude: -117.23349999999999,
-//! time_zone: "America/Los_Angeles"
+//!     dma: Some(DesignatedMarketArea(825858)),
+//!     postal_code: Some("92109".into()),
+//!     country: Country::UnitedStates,
+//!     region_code: Some("CA".into()),
+//!     city: Some("San Diego".into()),
+//!     latitude: 32.79769999999999,
+//!     longitude: -117.23349999999999,
+//!     time_zone: "America/Los_Angeles"
 //! };
 //!
 //! assert_eq!(record, expected_value);

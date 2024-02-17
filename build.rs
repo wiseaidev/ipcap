@@ -1,3 +1,3 @@
 fn main() {
-    codegen::run()
+    ipcap_codegen::run()
 }
