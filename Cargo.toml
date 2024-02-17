@@ -8,8 +8,11 @@ repository = "https://github.com/wiseaidev/ipcap"
 documentation = "https://docs.rs/ipcap"
 authors = ["Mahmoud Harmouch <oss@wiseai.dev>"]
 exclude = ["/data"]
-
+build = "build.rs"
 edition = "2021"
+
+[badges]
+maintenance = { status = "passively-maintained" }
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
