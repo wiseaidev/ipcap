@@ -24,16 +24,36 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         use ipcap::geo_ip_reader::GeoIpReader;
         use ipcap::utils::pretty_print_dict;
         use std::fs::File;
+        use std::net::{Ipv4Addr, Ipv6Addr};
         // Parse command-line arguments
         let args = Cli::parse();
 
-        // Initialize IP/DNS lookup client with the specified options
-        let mut geo_ip = GeoIpReader::<File>::new().unwrap();
+        // auto detect ip address type
 
         // Perform IP lookup based on the provided target
         if !args.target.is_empty() {
-            let record = geo_ip.get_record(&args.target);
-            pretty_print_dict(record);
+            match args.target.parse::<Ipv4Addr>() {
+                Ok(_ipv4_addr) => {
+                    let mut geo_ip = GeoIpReader::<File>::new("v4").unwrap();
+
+                    let record = geo_ip.get_record(&args.target);
+                    pretty_print_dict(record);
+                }
+                Err(_) => {
+                    // Not an IPv4 address, try IPv6
+                    match args.target.parse::<Ipv6Addr>() {
+                        Ok(_ipv6_addr) => {
+                            let mut geo_ip = GeoIpReader::<File>::new("v6").unwrap();
+
+                            let record = geo_ip.get_record(&args.target);
+                            pretty_print_dict(record);
+                        }
+                        Err(_) => {
+                            // todo
+                        }
+                    }
+                }
+            }
         } else {
             // Print an error message and exit if the target is missing
             return Err("Target is required!".into());

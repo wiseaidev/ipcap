@@ -42,26 +42,34 @@ cargo install --locked ipcap --all-features
 
 ## 📖 Download the dataset
 
-Download the city database from the repository using this command:
+Download the city databases, v4 and v6 from the repository using this command:
 
 ```sh
-curl -LS https://raw.githubusercontent.com/wiseaidev/ipcap/main/data/geo_ip_city.dat --create-dirs -o ~/ipcap/geo_ip_city.dat
+# IPV4 database
+curl -LS https://raw.githubusercontent.com/wiseaidev/ipcap/main/data/geo_ip_city_v4.dat --create-dirs -o ~/ipcap/geo_ip_city_v4.dat
+
+# IPV6 database
+curl -LS https://raw.githubusercontent.com/wiseaidev/ipcap/main/data/geo_ip_city_v6.dat --create-dirs -o ~/ipcap/geo_ip_city_v6.dat
 ```
 
-This will download the `data/geo_ip_city.dat` from the repository and put it under `~/ipcap/geo_ip_city.dat`.
+This will download the `data/geo_ip_city_v4.dat` and or `data/geo_ip_city_v4.dat` database(s) from the repository and put it under `~/ipcap/`.
 
 If, for some reason, you decide to change this file location, just set this environment variable to help the CLI read this file. To set the environment variable before running your Rust program, you can do something like:
 
 ```sh
-export IPCAP_FILE_PATH=/your/custom/path/geo_ip_city.dat
+# IPV4 database
+export IPCAP_FILE_PATH=/your/custom/path/geo_ip_city_v4.dat
+
+# IPV6 database
+export IPCAP_FILE_PATH=/your/custom/path/geo_ip_city_v4.dat
 ```
 
-Replace `/your/custom/path/geo_ip_city.dat` with the desired file path. If the environment variable is not set, the program will use the default path (`/home/username/ipcap/geo_ip_city.dat`).
+Replace `/your/custom/path/geo_ip_city_v4.dat` with the desired file path. If the environment variable is not set, the program will use the default path (`/home/username/ipcap/geo_ip_city_v4.dat`).
 
 > [!NOTE]
-The dataset was shamelessly taken from the fedora website at [https://src.fedoraproject.org/repo/pkgs/GeoIP-GeoLite-data/GeoLiteCity.dat.gz](https://src.fedoraproject.org/repo/pkgs/GeoIP-GeoLite-data/GeoLiteCity.dat.gz/01968fd152251b98874ee0a8d254f4ab/).
+The databases were shamelessly taken from the fedora website at [https://src.fedoraproject.org/repo/pkgs/GeoIP-GeoLite-data/](https://src.fedoraproject.org/repo/pkgs/GeoIP-GeoLite-data/).
 
-## About the dataset
+## About the IPV4 dataset
 
 The last 600 bytes of this dataset:
 
@@ -110,16 +118,23 @@ The forth byte from the end of the file, '2', indicates the database type as the
 
 ## ✨ Features
 
+- Auto detect ipv4 and ipv6.
 - IP address lookup without internet access.
 - Zero API calls for decoding IP addresses.
 - Dataset download and customizable file path.
 
 ## ⌨ Usage as CLI
 
-### Perform IP lookup:
+### Perform IPV4 lookup:
 
 ```sh
 ipcap -t 8.8.8.8
+```
+
+### Perform IPV6 lookup:
+
+```sh
+ipcap -t 2a08:1450:300f:900::1003
 ```
 
 ## 💻 Usage as Dep
@@ -131,13 +146,18 @@ ipcap = "0.1.5"
 
 ```rust
 use ipcap::geo_ip_reader::GeoIpReader;
+use ipcap::utils::pretty_print_dict;
 use std::fs::File;
 
 fn main() {
     let mut geo_ip = GeoIpReader::<File>::new().unwrap();
-    let record = geo_ip.get_record("8.8.8.8");
+    let mut record = geo_ip.get_record("8.8.8.8");
 
-    println!("{:?}", record);
+    pretty_print_dict(record);
+
+    record = geo_ip.get_record("2a08:1450:300f:900::1003");
+
+    pretty_print_dict(record);
 }
 ```
 
@@ -145,7 +165,7 @@ fn main() {
 
 | Option                   | Default Value | Description                                              |
 |--------------------------|---------------|----------------------------------------------------------|
-| `--target`               | `""`          | Set the IP address to lookup with the --target option. |
+| `--target`               | `""`          | Set the IP address, v4 or v6, to lookup with the --target option. |
   
 ## 🤝 Contributing
 

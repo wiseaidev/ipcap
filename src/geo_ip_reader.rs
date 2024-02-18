@@ -19,14 +19,14 @@ use std::io::{Read, Seek, SeekFrom};
 /// use ipcap::geo_ip_reader::GeoIpReader;
 ///
 /// // Create a GeoIpReader instance
-/// let mut reader_from_file = GeoIpReader::<File>::new().expect("Failed to create GeoIpReader");
+/// let mut reader_from_file = GeoIpReader::<File>::new("v4").expect("Failed to create GeoIpReader");
 /// ```
 #[derive(Debug)]
 pub struct GeoIpReader<R>
 where
     R: Read + Seek,
 {
-    /// The underlying reader for the GeoIP database.
+    /// The underlying reader for the GeoIP v4 database.
     fp: R,
     /// The type of the GeoIP database.
     database_type: u8,
@@ -66,27 +66,39 @@ where
     /// use std::fs::File;
     /// use ipcap::geo_ip_reader::GeoIpReader;
     ///
-    /// let result = GeoIpReader::<File>::new();
+    /// let result = GeoIpReader::<File>::new("v4");
     /// match result {
     ///     Ok(reader) => println!("GeoIpReader created successfully: {:?}", reader),
     ///     Err(err) => eprintln!("Error creating GeoIpReader: {:?}", err),
     /// }
     /// ```
-    pub fn new() -> Result<GeoIpReader<File>, GeoIpReaderError> {
+    pub fn new(type_: &str) -> Result<GeoIpReader<File>, GeoIpReaderError> {
         const ENV_VAR_NAME: &str = "IPCAP_FILE_PATH";
-
         let file_path = match env::var(ENV_VAR_NAME) {
             Ok(val) => val,
             Err(_) => {
-                // Default path in a subdirectory of the user's home directory
-                let mut default_path = home_dir().unwrap_or_default();
-                default_path.push("ipcap");
-                default_path.push("geo_ip_city.dat");
+                let default_path = match type_ {
+                    "v4" => {
+                        let mut path = home_dir().unwrap_or_default();
+                        path.push("ipcap");
+                        path.push("geo_ip_city_v4.dat");
+                        path
+                    }
+                    "v6" => {
+                        let mut path = home_dir().unwrap_or_default();
+                        path.push("ipcap");
+                        path.push("geo_ip_city_v6.dat");
+                        path
+                    }
+                    _ => {
+                        return Err(GeoIpReaderError::OpenFileError);
+                    }
+                };
                 default_path.to_string_lossy().into_owned()
             }
         };
 
-        let fp = File::open(file_path).map_err(|_| GeoIpReaderError::OpenFileError)?;
+        let fp = File::open(&file_path).map_err(|_| GeoIpReaderError::OpenFileError)?;
 
         let mut geoip_reader = GeoIpReader {
             fp,
@@ -119,7 +131,7 @@ where
     /// use std::fs::File;
     ///
     /// fn main() -> Result<(), GeoIpReaderError> {
-    ///     let mut reader = GeoIpReader::<File>::new()?;
+    ///     let mut reader = GeoIpReader::<File>::new("v4")?;
     ///     reader.detect_database_type()?;
     ///     Ok(())
     /// }
@@ -216,14 +228,14 @@ where
     /// use ipcap::geo_ip_reader::GeoIpReader;
     /// use std::fs::File;
     ///
-    /// let mut geo_ip = GeoIpReader::<File>::new().unwrap();
+    /// let mut geo_ip = GeoIpReader::<File>::new("v4").unwrap();
     ///
     /// match geo_ip.get_country(16777216) {
     ///     Ok(offset) => println!("Country offset: {}", offset),
     ///     Err(err) => eprintln!("Error: {}", err),
     /// }
     /// ```
-    pub fn get_country(&mut self, ip_number: u32) -> Result<usize, GeoIpReaderError> {
+    pub fn get_country(&mut self, ip_number: u128) -> Result<usize, GeoIpReaderError> {
         // Initialize offset to 0
         let mut offset = 0;
 
@@ -242,9 +254,13 @@ where
             // Calculate the start index and read length for the database
             let start_index = 2 * self.record_length * offset;
             let read_length = 2 * self.record_length;
-
             // Create a new GeoIpReader instance for reading the database
-            let mut reader = GeoIpReader::<File>::new().unwrap();
+            let mut reader;
+            if seek_depth == 31 {
+                reader = GeoIpReader::<File>::new("v4").unwrap();
+            } else {
+                reader = GeoIpReader::<File>::new("v6").unwrap();
+            }
             // Seek to the start index in the database
             reader.fp.seek(SeekFrom::Start(start_index as u64)).unwrap();
 
@@ -307,7 +323,7 @@ where
     /// use ipcap::geo_ip_reader::GeoIpReader;
     /// use std::fs::File;
     ///
-    /// let mut geo_ip = GeoIpReader::<File>::new().unwrap();
+    /// let mut geo_ip = GeoIpReader::<File>::new("v4").unwrap();
     ///
     /// let record = geo_ip.get_record("185.90.90.120");
     /// println!("Geographical Record: {:?}", record);
@@ -319,8 +335,9 @@ where
             .unwrap();
 
         // Check if the offset is equal to the total number of database segments
+        println!("{:?}", self.database_segments);
         if seek_country == self.database_segments.try_into().unwrap() {
-            todo!("Error handling")
+            // todo!("Error handling")
         }
 
         // Calculate the read length based on the record length and database segments
@@ -415,13 +432,13 @@ mod tests {
 
     #[test]
     fn test_new_geo_ip_reader() {
-        let result = GeoIpReader::<File>::new();
+        let result = GeoIpReader::<File>::new("v4");
         assert!(result.is_ok());
     }
 
     #[test]
     fn test_get_country() {
-        let mut geo_ip = GeoIpReader::<File>::new().unwrap();
+        let mut geo_ip = GeoIpReader::<File>::new("v4").unwrap();
 
         match geo_ip.get_country(16777216) {
             Ok(offset) => assert_eq!(offset, 2735459),
@@ -431,7 +448,7 @@ mod tests {
 
     #[test]
     fn test_get_time_zone_given_ip_addr() {
-        let mut geo_ip = GeoIpReader::<File>::new().unwrap();
+        let mut geo_ip = GeoIpReader::<File>::new("v4").unwrap();
 
         let result = geo_ip.get_time_zone_given_ip_addr("185.90.90.120");
         assert_eq!(result, "Asia/Riyadh".to_string());
@@ -442,7 +459,7 @@ mod tests {
 
     #[test]
     fn test_get_record_with_valid_ip() {
-        let mut geo_ip = GeoIpReader::<File>::new().unwrap();
+        let mut geo_ip = GeoIpReader::<File>::new("v4").unwrap();
         let record = geo_ip.get_record("185.90.90.120");
 
         assert_eq!(record.country, Country::SaudiArabia);
@@ -450,7 +467,7 @@ mod tests {
 
     #[test]
     fn test_all_records_with_valid_ip() {
-        let mut geo_ip = GeoIpReader::<File>::new().unwrap();
+        let mut geo_ip = GeoIpReader::<File>::new("v4").unwrap();
         let record = geo_ip.get_record("108.95.4.105");
 
         let expected_value = Record {
@@ -470,7 +487,7 @@ mod tests {
     #[test]
     #[should_panic(expected = "Invalid IP address")]
     fn test_get_record_with_invalid_ip() {
-        let mut geo_ip = GeoIpReader::<File>::new().unwrap();
+        let mut geo_ip = GeoIpReader::<File>::new("v4").unwrap();
         let _record = geo_ip.get_record("-");
 
         todo!("Error handling")
