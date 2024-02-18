@@ -22,10 +22,10 @@
 //! use ipcap::countries::Country;
 //! use ipcap::designated_market_area::DesignatedMarketArea;
 //!
-//! let mut geo_ip = GeoIpReader::<File>::new().unwrap();
-//! let record = geo_ip.get_record("108.95.4.105");
+//! let mut geo_ip = GeoIpReader::<File>::new("v4").unwrap();
+//! let mut record = geo_ip.get_record("108.95.4.105");
 //!
-//! let expected_value = Record {
+//! let mut expected_value = Record {
 //!     dma: Some(DesignatedMarketArea(825858)),
 //!     postal_code: Some("92109".into()),
 //!     country: Country::UnitedStates,
@@ -36,6 +36,21 @@
 //!     time_zone: "America/Los_Angeles"
 //! };
 //!
+//! assert_eq!(record, expected_value);
+//!
+//! geo_ip = GeoIpReader::<File>::new("v6").unwrap();
+//! record = geo_ip.get_record("2a08:1450:300f:900::1003");
+//!
+//! expected_value = Record {
+//!     dma: None,
+//!     postal_code: None,
+//!     country: Country::UnitedKingdom,
+//!     region_code: None,
+//!     city: None,
+//!     latitude: 54.0,
+//!     longitude: -2.0,
+//!     time_zone: "Europe/London"
+//! };
 //! assert_eq!(record, expected_value);
 //! ```
 //!
