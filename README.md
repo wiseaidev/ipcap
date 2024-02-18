@@ -61,7 +61,7 @@ If, for some reason, you decide to change this file location, just set this envi
 export IPCAP_FILE_PATH=/your/custom/path/geo_ip_city_v4.dat
 
 # IPV6 database
-export IPCAP_FILE_PATH=/your/custom/path/geo_ip_city_v4.dat
+export IPCAP_FILE_PATH=/your/custom/path/geo_ip_city_v6.dat
 ```
 
 Replace `/your/custom/path/geo_ip_city_v4.dat` with the desired file path. If the environment variable is not set, the program will use the default path (`/home/username/ipcap/geo_ip_city_v4.dat`).
