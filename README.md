@@ -150,11 +150,12 @@ use ipcap::utils::pretty_print_dict;
 use std::fs::File;
 
 fn main() {
-    let mut geo_ip = GeoIpReader::<File>::new().unwrap();
+    let mut geo_ip = GeoIpReader::<File>::new("v4").unwrap();
     let mut record = geo_ip.get_record("8.8.8.8");
 
     pretty_print_dict(record);
 
+    geo_ip = GeoIpReader::<File>::new("v6").unwrap();
     record = geo_ip.get_record("2a08:1450:300f:900::1003");
 
     pretty_print_dict(record);
