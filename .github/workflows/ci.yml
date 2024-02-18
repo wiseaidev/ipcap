@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Curl
-      run: curl -LS https://raw.githubusercontent.com/wiseaidev/ipcap/main/data/geo_ip_city.dat --create-dirs -o ~/ipcap/geo_ip_city.dat
+      run: curl -LS https://raw.githubusercontent.com/wiseaidev/ipcap/main/data/geo_ip_city_v4.dat --create-dirs -o ~/ipcap/geo_ip_city_v4.dat
     - name: Build
       run: cargo build --verbose
     - name: Run tests
